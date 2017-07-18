@@ -27,7 +27,7 @@
   (lambda (a lat)
     (cond
       ( (null? lat) false )
-      ( (not (atom? (car lat) ) ) ( or (member*? a (car lat) ) ( member*? a (cdr lat) ) ) ) 
+      ( (not (atom? (car lat) ) ) ( or (member*? a (car lat) ) ( member*? a (cdr lat) ) ) )
       ( (eq? a (car lat) ) true )
       ( else (member*? a (cdr lat) ) )
     )
@@ -43,6 +43,17 @@
     )
   )
 )
+
+(define rember
+  (lambda (s l)
+    (cond
+      ( (null? l) () )
+      ( (atom? (car l) ) 
+       (cond
+         ( (and (atom? s) (eq? s (car l) )) (cdr l) )
+         ( else (cons (car l) (rember s (cdr l) ) ) )
+         )
+      ( (equal? (car l) s) 
 
 (define firsts
   (lambda (ls)
@@ -80,7 +91,7 @@
     ( cond
       ( (null? lat) () )
       ( (not (atom? (car lat) )) (cons (insertl* new old (car lat) ) (insertl* new old (cdr lat) ) ) )
-      ( (eq? (car lat) old) (cons new (cons old (insertl* new old (cdr lat)) ) ) ) 
+      ( (eq? (car lat) old) (cons new (cons old (insertl* new old (cdr lat)) ) ) )
       ( else ( cons (car lat) (insertl* new old (cdr lat) )  )  )
     )
   )
@@ -120,7 +131,7 @@
   (lambda (new old1 old2 lat)
     (cond
       ( (null? lat) () )
-      ( (or (eq? old1 (car lat)) (eq? old2 (car lat)) ) (cons new (cdr lat) ) ) 
+      ( (or (eq? old1 (car lat)) (eq? old2 (car lat)) ) (cons new (cdr lat) ) )
       ( else ( cons (car lat) (subst2 new old1 old2 (cdr lat) ) )  )
     )
   )
@@ -200,14 +211,14 @@
   (lambda (tup)
     (cond
       ( (null? tup) 0 )
-      ( else ( plus (car tup) (addTup (cdr tup) ) ) ) 
+      ( else ( plus (car tup) (addTup (cdr tup) ) ) )
     )
   )
 )
 
 (define x
   (lambda (n m)
-    (cond 
+    (cond
       ((zero? m) 0)
       (else (plus n (x n (sub1 m) ) ) )
     )
@@ -225,7 +236,7 @@
 )
 
 (define gt
-  (lambda (n m) 
+  (lambda (n m)
     (cond
       ( (zero? n) false)
       ( (zero? m) true)
@@ -249,7 +260,7 @@
 
 (define div
   (lambda (n m)
-    (cond 
+    (cond
       ((lt n m) 0 )
       (else (add1 (div (minus n m) m ) ) )
     )
@@ -258,7 +269,7 @@
 
 (define length
   (lambda (lat)
-    (cond 
+    (cond
       ((null? lat) 0)
       (else (add1 (length (cdr lat) ) ) )
     )
@@ -359,29 +370,35 @@
     )
   )
 
-(define eqlist?
-  (lambda (l1 l2)
-    (cond
-      ( (and (null? l1) (null? l2) ) true)
-      ( (or (null? l1) (null? l2) ) false)
-      ( (and (atom? (car l1) ) (atom? (car l2) ) ) (and (eqan (car l1) (car l2) ) (eqlist? (cdr l1) (cdr l2)) ) )
-      ( (or (atom? (car l1) ) (atom? (car l2) ) ) false)
-      ( else (and (eqlist? (car l1) (car l2) ) (eqlist? (cdr l1) (cdr l2) ) ) )
+  (define equal?
+    (lambda (s1 s2)
+      (cond
+        ( (and (atom? s1) (atom? s2) ) (eqan s1 s2) )
+        ( (or (atom? s1) (atom? s2) ) false)
+        (else (eqlist? s1 s2) )
       )
     )
-  )
-
-(define equal?
-  (lambda (s1 s2)
-    (cond
-      ( (and (atom? s1) (atom? s2) ) (eqan s1 s2) )
-      ( (or (atom? s1) (atom? s2) ) false)
-      (else (eqlist? s1 s2) )
     )
-  )
-  )
 
+;(define eqlist?
+;  (lambda (l1 l2)
+;    (cond
+;      ( (and (null? l1) (null? l2) ) true)
+;      ( (or (null? l1) (null? l2) ) false)
+;      ( (and (atom? (car l1) ) (atom? (car l2) ) ) (and (eqan (car l1) (car l2) ) (eqlist? (cdr l1) (cdr l2)) ) )
+;      ( (or (atom? (car l1) ) (atom? (car l2) ) ) false)
+;      ( else (and (eqlist? (car l1) (car l2) ) (eqlist? (cdr l1) (cdr l2) ) ) )
+;      )
+;    )
+;  )
 
+(define eqlist?
+  (lambda (l1 l2)
+  (cond
+    ( (and (null? l1) (null? l2) ) true)
+    ( (or (null? l1) (null? l2) ) false)
+      ( else (and (equal? (car l1) (car l2)) (eqlist? (cdr l1) (cdr l2) )) )
+    )))
 (occur* 'banana '( (banana) (split ((((banana ice))) (cream (banana) ) sherbet) ) (banana) (bread) (banana brandy) ) )
 (subst* 'orange 'banana '( (banana) (split ((((banana ice))) (cream (banana) ) sherbet) ) (banana) (bread) (banana brandy) ) )
 (member*? 'orange '( (banana) (split ((((banana ice))) (cream (banana) ) sherbet) ) (banana) (bread) (banana brandy) ) )
@@ -389,13 +406,12 @@
 (leftmost '( (banana) (split ((((banana ice))) (cream (banana) ) sherbet) ) (banana) (bread) (banana brandy) ) )
 (leftmost '( fruit (banana) (split ((((banana ice))) (cream (banana) ) sherbet) ) (banana) (bread) (banana brandy) ) )
 
-(equal? '(beef (sausage (and) (soda) ) ) `(beef (sausage (and) soda) ) )
-(equal? '(beef (sausage (and) (soda) ) ) `(beef (sausage (and) (soda)) ) )
-(equal? '(beef (sausage (and) (soda) ) ) `(beef (sausage (and) (pop)) ) )
+(eqlist? '(beef (sausage (and) (soda) ) ) `(beef (sausage (and) soda) ) )
+(eqlist? '(beef (sausage (and) (soda) ) ) `(beef (sausage (and) (soda)) ) )
+(eqlist? '(beef (sausage (and) (soda) ) ) `(beef (sausage (and) (pop)) ) )
 (equal? '(beef (sausage (and) (soda) ) ) 3)
 (equal? '(beef (sausage (and) (soda) ) ) `foo)
 (equal? 2 3)
 (equal? 2 2)
 (equal? 2 `foo)
 (equal? `foo `foo)
-
